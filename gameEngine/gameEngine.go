@@ -1,6 +1,7 @@
 package gameEngine
 
 import (
+	"Crazy8s/card"
 	"Crazy8s/deck"
 	"Crazy8s/player"
 	"bufio"
@@ -17,9 +18,18 @@ var (
 )
 
 type Game struct {
-	playerList []*player.Player
-	gameDeck   *deck.Deck
-	state      GameState
+	currentPlayerIndex int
+	playerList         []*player.Player
+	gameDeck           *deck.Deck
+	state              GameState
+}
+
+func (g *Game) SetCurrentPlayer(idx int) {
+	g.currentPlayerIndex = idx
+}
+
+func (g *Game) NextPlayer() {
+	g.currentPlayerIndex = (g.currentPlayerIndex + 1) % len(g.playerList)
 }
 
 // AddPlayers add players to game
@@ -64,14 +74,14 @@ func (g *Game) AddPlayers() {
 	}
 }
 
-// distributeCards builds deck, distribute cards
+// distributeCards builds deck, distributes cards
 func (g *Game) distributeCards() {
 
 	g.gameDeck = deck.GetInstance()
 
 	for _, currentP := range g.playerList {
 		for i := 0; i < 8; i++ {
-			currentP.PHand.AddCard(g.gameDeck.RemoveCard())
+			currentP.PHand.AddCard(g.gameDeck.RemoveCardFromDeck())
 		}
 	}
 }
@@ -83,7 +93,7 @@ func (g *Game) ShufflePlayers() {
 }
 
 func (g *Game) setTopCard() {
-	g.gameDeck.AddCardToActive(g.gameDeck.RemoveCard())
+	g.gameDeck.AddCardToActive(g.gameDeck.RemoveCardFromDeck())
 	g.gameDeck.RefreshTopCard()
 }
 
@@ -91,15 +101,44 @@ func (g *Game) initializeGame() {
 	g.distributeCards()
 	g.ShufflePlayers()
 	g.setTopCard()
+	g.currentPlayerIndex = 0
+
 }
 
-// PickUpCard : Player takes top card from reserve deck
+// PickUpCard : Player takes top card from reserve deck (played on start of turn )
 func (g *Game) PickUpCard(player *player.Player) {
-	player.PHand.AddCard(g.gameDeck.RemoveCard())
+	player.PHand.AddCard(g.gameDeck.RemoveCardFromDeck())
 }
 
 // play card(s)
-//func (g *Game) PlayCard(playCard *card.Card) {
-//	topCard := g.gameDeck.TopCard()
-//
-//}
+func (g *Game) PlaySingleCard(player *player.Player, card1 *card.Card) {
+	topCard := g.gameDeck.GetTopCard()
+
+	if topCard.EqualSuit(card1) || topCard.EqualValue(card1) {
+		removedCard := player.PHand.RemoveCardFromHand(card1)
+		g.gameDeck.AddCardToActive(removedCard)
+		g.gameDeck.RefreshTopCard()
+	}
+}
+
+func (g *Game) PlayDoubleCard(card1 *card.Card, card2 *card.Card) {
+	topCard := g.gameDeck.GetTopCard()
+
+}
+
+func (g *Game) PlayTripleCard(card1 *card.Card, card2 *card.Card, card3 *card.Card) {
+	topCard := g.gameDeck.GetTopCard()
+
+}
+
+func (g *Game) PlayQuadroCard(card1 *card.Card, card2 *card.Card, card3 *card.Card, card4 *card.Card) {
+	topCard := g.gameDeck.GetTopCard()
+
+}
+
+func (g *Game) CheckWinner() {
+	if g.playerList[g.currentPlayerIndex].PHand.GetCount() == 0 {
+		fmt.Printf("END OF GAME, Player %s won!", g.playerList[g.currentPlayerIndex].GetPlayerName())
+		os.Exit(1)
+	}
+}

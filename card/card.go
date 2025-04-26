@@ -7,14 +7,13 @@ import (
 
 // Card structure
 type Card struct {
+	id    int
 	suit  string
 	value string
 }
 
-func NewCard(suit string, value string) *Card {
-	card := &Card{}
-	card.SetValue(value)
-	card.SetSuit(suit)
+func NewCard(id int, suit string, value string) *Card {
+	card := &Card{id, suit, value}
 	return card
 }
 
@@ -27,24 +26,8 @@ func (c *Card) GetValue() string {
 	return c.value
 }
 
-// Setters
-func (c *Card) SetSuit(suit string) {
-	valid, err := c.VerifySuit(suit)
-
-	if valid && err == nil {
-		c.suit = suit
-	} else {
-		return
-	}
-}
-
-func (c *Card) SetValue(value string) {
-	valid, err := c.VerifyValue(value)
-	if valid && err == nil {
-		c.value = value
-	} else {
-		return
-	}
+func (c *Card) GetID() int {
+	return c.id
 }
 
 // ♠ ♥ ♦ ♣
@@ -75,4 +58,12 @@ func (c *Card) VerifyValue(value string) (bool, error) {
 		}
 	}
 	return false, fmt.Errorf("invalid suit: %s", value)
+}
+
+func (c *Card) EqualSuit(other *Card) bool {
+	return c.GetSuit() == other.GetSuit()
+}
+
+func (c *Card) EqualValue(other *Card) bool {
+	return c.GetValue() == other.GetValue()
 }

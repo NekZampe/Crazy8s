@@ -14,15 +14,15 @@ type Deck struct {
 	topCard     *card.Card
 }
 
-func (d *Deck) ActivePile() []*card.Card {
+func (d *Deck) GetActivePile() []*card.Card {
 	return d.activePile
 }
 
-func (d *Deck) ReservePile() []*card.Card {
+func (d *Deck) GetReservePile() []*card.Card {
 	return d.reservePile
 }
 
-func (d *Deck) TopCard() *card.Card {
+func (d *Deck) GetTopCard() *card.Card {
 	return d.topCard
 }
 
@@ -52,6 +52,7 @@ func (d *Deck) RefreshTopCard() {
 // AddCardToActive adds a card to active
 func (d *Deck) AddCardToActive(c *card.Card) {
 	d.activePile = append(d.activePile, c)
+	d.RefreshTopCard()
 }
 
 // AddCardToReserve adds card to reserve pile
@@ -59,8 +60,8 @@ func (d *Deck) AddCardToReserve(c *card.Card) {
 	d.reservePile = append(d.reservePile, c)
 }
 
-// RemoveCard : Removes top card from reserve pile
-func (d *Deck) RemoveCard() *card.Card {
+// RemoveCardFromDeck : Removes top card from reserve pile
+func (d *Deck) RemoveCardFromDeck() *card.Card {
 	if len(d.reservePile) == 0 {
 		fmt.Println("Deck is empty")
 		return nil
@@ -71,18 +72,20 @@ func (d *Deck) RemoveCard() *card.Card {
 
 }
 
-// InitializeDeck : Creates deck, shuffles and refreshes top card
+// InitializeDeck : Creates and shuffles deck
 func (d *Deck) initializeDeck() {
+	index := 0
 	suits := []string{"Hearts", "Diamonds", "Clubs", "Spades"}
 	values := []string{
 		"A", "2", "3", "4", "5", "6", "7",
 		"8", "9", "10", "J", "Q", "K",
 	}
 
-	for _, suit := range suits {
-		for _, value := range values {
-			c := card.NewCard(suit, value)
+	for _, suit := range values {
+		for _, value := range suits {
+			c := card.NewCard(index, suit, value)
 			d.reservePile = append(d.reservePile, c)
+			index++
 		}
 	}
 	d.ShuffleDeck()

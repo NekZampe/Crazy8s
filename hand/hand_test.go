@@ -8,7 +8,7 @@ import (
 
 func TestAddCard(t *testing.T) {
 	h := hand.Hand{}
-	c := card.NewCard("Spades", "K")
+	c := card.NewCard(1, "Spades", "K")
 
 	h.AddCard(c)
 
@@ -23,13 +23,13 @@ func TestAddCard(t *testing.T) {
 
 func TestRemoveCard(t *testing.T) {
 	h := hand.Hand{}
-	c1 := card.NewCard("Spades", "K")
-	c2 := card.NewCard("Hearts", "A")
+	c1 := card.NewCard(1, "Spades", "K")
+	c2 := card.NewCard(2, "Hearts", "A")
 
 	h.AddCard(c1)
 	h.AddCard(c2)
 
-	h.RemoveCard(c1)
+	h.RemoveCardFromHand(c1)
 
 	if h.GetCount() != 1 {
 		t.Errorf("expected 1 card after removal, got %d", h.GetCount())
@@ -47,8 +47,8 @@ func TestGetCount(t *testing.T) {
 		t.Errorf("expected empty hand, got count %d", h.GetCount())
 	}
 
-	h.AddCard(card.NewCard("Diamonds", "5"))
-	h.AddCard(card.NewCard("Clubs", "J"))
+	h.AddCard(card.NewCard(1, "Diamonds", "5"))
+	h.AddCard(card.NewCard(2, "Clubs", "J"))
 
 	if h.GetCount() != 2 {
 		t.Errorf("expected hand count to be 2, got %d", h.GetCount())
@@ -57,8 +57,8 @@ func TestGetCount(t *testing.T) {
 
 func TestGetCards(t *testing.T) {
 	h := hand.Hand{}
-	c1 := card.NewCard("Spades", "7")
-	c2 := card.NewCard("Hearts", "3")
+	c1 := card.NewCard(1, "Spades", "7")
+	c2 := card.NewCard(2, "Hearts", "3")
 
 	h.AddCard(c1)
 	h.AddCard(c2)
@@ -74,10 +74,10 @@ func TestGetCards(t *testing.T) {
 
 func TestOrganizeHand(t *testing.T) {
 	h := hand.Hand{}
-	c1 := card.NewCard("Spades", "K")
-	c2 := card.NewCard("Clubs", "2")
-	c3 := card.NewCard("Hearts", "K")
-	c4 := card.NewCard("Diamonds", "A")
+	c1 := card.NewCard(6, "Spades", "K")
+	c2 := card.NewCard(2, "Clubs", "2")
+	c3 := card.NewCard(8, "Hearts", "K")
+	c4 := card.NewCard(4, "Diamonds", "A")
 
 	h.AddCard(c1)
 	h.AddCard(c2)
@@ -87,7 +87,7 @@ func TestOrganizeHand(t *testing.T) {
 	h.OrganizeHand()
 	cards := h.GetCards()
 
-	expectedOrder := []*card.Card{c4, c2, c3, c1} // A, 2, K of Hearts, K of Spades
+	expectedOrder := []*card.Card{c2, c4, c1, c3}
 
 	for i, expected := range expectedOrder {
 		if cards[i] != expected {
