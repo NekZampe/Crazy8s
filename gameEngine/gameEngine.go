@@ -22,6 +22,7 @@ type Game struct {
 	playerList         []*player.Player
 	gameDeck           *deck.Deck
 	state              GameState
+	countOf2s          int
 }
 
 func (g *Game) SetCurrentPlayer(idx int) {
@@ -110,30 +111,84 @@ func (g *Game) PickUpCard(player *player.Player) {
 	player.PHand.AddCard(g.gameDeck.RemoveCardFromDeck())
 }
 
-// play card(s)
+// play card(s) ( up to 4 cards at once possible )
 func (g *Game) PlaySingleCard(player *player.Player, card1 *card.Card) {
 	topCard := g.gameDeck.GetTopCard()
 
-	if topCard.EqualSuit(card1) || topCard.EqualValue(card1) {
+	if topCard.ValidatePlay(card1) {
 		removedCard := player.PHand.RemoveCardFromHand(card1)
 		g.gameDeck.AddCardToActive(removedCard)
 		g.gameDeck.RefreshTopCard()
+		g.CheckWinner()
 	}
 }
 
-func (g *Game) PlayDoubleCard(card1 *card.Card, card2 *card.Card) {
+func (g *Game) PlayDoubleCard(player *player.Player, card1 *card.Card, card2 *card.Card) {
 	topCard := g.gameDeck.GetTopCard()
+
+	if !topCard.ValidatePlay(card1) || !card1.EqualValue(card2) {
+		fmt.Println("Invalid Card selection")
+		return
+	}
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card1))
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card2))
+	g.gameDeck.RefreshTopCard()
+	g.CheckWinner()
+}
+
+func (g *Game) PlayTripleCard(player *player.Player, card1 *card.Card, card2 *card.Card, card3 *card.Card) {
+	topCard := g.gameDeck.GetTopCard()
+
+	if !topCard.ValidatePlay(card1) || !card1.EqualValue(card2) || !card2.EqualValue(card3) {
+		fmt.Println("Invalid Card selection")
+		return
+	}
+
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card1))
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card2))
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card3))
+	g.gameDeck.RefreshTopCard()
+	g.CheckWinner()
+}
+
+func (g *Game) PlayQuadroCard(player *player.Player, card1 *card.Card, card2 *card.Card, card3 *card.Card, card4 *card.Card) {
+	topCard := g.gameDeck.GetTopCard()
+
+	if !topCard.ValidatePlay(card1) || !card1.EqualValue(card2) || !card2.EqualValue(card3) || !card3.EqualValue(card4) {
+		fmt.Println("Invalid Card selection")
+		return
+	}
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card1))
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card2))
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card3))
+	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card4))
+	g.gameDeck.RefreshTopCard()
+	g.CheckWinner()
+}
+
+func (g *Game) PlayCrazy8Card() {
 
 }
 
-func (g *Game) PlayTripleCard(card1 *card.Card, card2 *card.Card, card3 *card.Card) {
-	topCard := g.gameDeck.GetTopCard()
+func (g *Game) PlayJackCard() {
 
 }
 
-func (g *Game) PlayQuadroCard(card1 *card.Card, card2 *card.Card, card3 *card.Card, card4 *card.Card) {
-	topCard := g.gameDeck.GetTopCard()
+func (g *Game) PlayTwosCard() {
 
+}
+
+func (g *Game) PlayCardSelector(player *player.Player, firstCard *card.Card) {
+	switch firstCard.GetValue() {
+	case "8":
+		g.PlayCrazy8Card()
+	case "J":
+		g.PlayJackCard()
+	case "2":
+		g.PlayTwosCard()
+	default:
+		return
+	}
 }
 
 func (g *Game) CheckWinner() {

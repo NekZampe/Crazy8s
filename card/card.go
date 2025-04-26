@@ -67,3 +67,7 @@ func (c *Card) EqualSuit(other *Card) bool {
 func (c *Card) EqualValue(other *Card) bool {
 	return c.GetValue() == other.GetValue()
 }
+
+func (c *Card) ValidatePlay(other *Card) bool {
+	return c.EqualValue(other) || c.EqualSuit(other)
+}

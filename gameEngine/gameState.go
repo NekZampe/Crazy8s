@@ -19,9 +19,8 @@ func (g *Game) Transition(newState GameState) error {
 		AddPlayers: {Start},
 		Start:      {Deal},
 		Deal:       {PlayerTurn},
-		PlayerTurn: {CPUTurn, CheckWin},
-		CPUTurn:    {PlayerTurn, CheckWin},
-		CheckWin:   {End, PlayerTurn, CPUTurn},
+		PlayerTurn: {CheckWin},
+		CheckWin:   {End, PlayerTurn},
 		End:        {},
 	}
 
