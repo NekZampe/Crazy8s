@@ -49,10 +49,9 @@ func (d *Deck) RefreshTopCard() {
 	}
 }
 
-// AddCardToActive adds a card to active and refreshes top card
+// AddCardToActive adds a card to active
 func (d *Deck) AddCardToActive(c *card.Card) {
 	d.activePile = append(d.activePile, c)
-	d.RefreshTopCard()
 }
 
 // AddCardToReserve adds card to reserve pile
@@ -61,12 +60,15 @@ func (d *Deck) AddCardToReserve(c *card.Card) {
 }
 
 // RemoveCard : Removes top card from reserve pile
-func (d *Deck) RemoveCard() {
+func (d *Deck) RemoveCard() *card.Card {
 	if len(d.reservePile) == 0 {
 		fmt.Println("Deck is empty")
-		return
+		return nil
 	}
+	removedCard := d.reservePile[len(d.reservePile)-1]
 	d.reservePile = d.reservePile[1:]
+	return removedCard
+
 }
 
 // InitializeDeck : Creates deck, shuffles and refreshes top card
@@ -84,11 +86,6 @@ func (d *Deck) initializeDeck() {
 		}
 	}
 	d.ShuffleDeck()
-
-	// Set the top card (last added is top)
-	if len(d.activePile) > 0 {
-		d.RefreshTopCard()
-	}
 }
 
 // ShuffleDeck : shuffles the deck

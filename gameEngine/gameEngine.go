@@ -5,12 +5,15 @@ import (
 	"Crazy8s/player"
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 )
 
 var (
 	playerCount = 0
+	rng         = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
 type Game struct {
@@ -61,15 +64,42 @@ func (g *Game) AddPlayers() {
 	}
 }
 
-// initialize game { builds deck, distribute cards }
-
+// distributeCards builds deck, distribute cards
 func (g *Game) distributeCards() {
 
 	g.gameDeck = deck.GetInstance()
 
+	for _, currentP := range g.playerList {
+		for i := 0; i < 8; i++ {
+			currentP.PHand.AddCard(g.gameDeck.RemoveCard())
+		}
+	}
 }
 
-// Pick up card {pick up card}
-// organise hand {organizes hand}
+func (g *Game) ShufflePlayers() {
+	rng.Shuffle(len(g.playerList), func(i, j int) {
+		g.playerList[i], g.playerList[j] = g.playerList[j], g.playerList[i]
+	})
+}
+
+func (g *Game) setTopCard() {
+	g.gameDeck.AddCardToActive(g.gameDeck.RemoveCard())
+	g.gameDeck.RefreshTopCard()
+}
+
+func (g *Game) initializeGame() {
+	g.distributeCards()
+	g.ShufflePlayers()
+	g.setTopCard()
+}
+
+// PickUpCard : Player takes top card from reserve deck
+func (g *Game) PickUpCard(player *player.Player) {
+	player.PHand.AddCard(g.gameDeck.RemoveCard())
+}
+
 // play card(s)
-// Pick one up and skip turn
+//func (g *Game) PlayCard(playCard *card.Card) {
+//	topCard := g.gameDeck.TopCard()
+//
+//}

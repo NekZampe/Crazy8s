@@ -17,7 +17,7 @@ var (
 type Player struct {
 	username   string
 	id         int
-	hand       *hand.Hand
+	PHand      *hand.Hand
 	playerType string // "human" or "cpu"
 	difficulty string // empty for humans, or "optimal"/"gambler" for CPUs
 }
@@ -56,7 +56,7 @@ func CreatePlayer() *Player {
 	return &Player{
 		username:   name,
 		id:         generateUniqueID(),
-		hand:       &hand.Hand{},
+		PHand:      &hand.Hand{},
 		playerType: "human",
 		difficulty: "",
 	}
@@ -70,7 +70,7 @@ func CreateCPUPlayer(difficulty string) *Player {
 	return &Player{
 		username:   name,
 		id:         generateUniqueID(),
-		hand:       &hand.Hand{},
+		PHand:      &hand.Hand{},
 		playerType: "cpu",
 		difficulty: difficulty,
 	}
