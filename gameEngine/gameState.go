@@ -9,7 +9,6 @@ const (
 	Start                = "Start"
 	Deal                 = "DealCards"
 	PlayerTurn           = "PlayerTurn"
-	CPUTurn              = "CPUTurn"
 	CheckWin             = "CheckWin"
 	End                  = "EndGame"
 )

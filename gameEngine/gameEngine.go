@@ -197,3 +197,17 @@ func (g *Game) CheckWinner() {
 		os.Exit(1)
 	}
 }
+
+func (g *Game) IsValidPlay(player *player.Player, cards []int) bool {
+	handMap := make(map[int]bool)
+	for _, c := range player.PHand.GetCards() {
+		handMap[c.GetID()] = true
+	}
+	for _, c := range cards {
+		if !handMap[c] {
+			return false // Card is not in the hand
+		}
+	}
+
+	return true // All cards are valid
+}

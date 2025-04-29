@@ -4,37 +4,62 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
+	"strconv"
 	"strings"
 )
 
-type request struct {
+type Request struct {
 	rType string
 	cards []int
 }
 
-// rTypes: Play [p] , Skip[s] , refresh[r]  exit[e]
-// Cards: 1 2 3... [ max 4 card IDs ]
+// rTypes: Play[p] , Skip[s] , refresh[r] , exit[e]
+// Cards: 1 4 7... [ max 4 card IDs ]
 
-func (g *Game) ParsePlayerRequest(request string) {
+func (g *Game) GetPlayerInput() string {
 	reader := bufio.NewReader(os.Stdin)
-	flag := true
+	fmt.Printf("Your turn: ")
+	input, _ := reader.ReadString('\n')
+	return strings.TrimSpace(strings.ToLower(input))
+}
 
-	for flag {
-		fmt.Printf("Your turn:")
-		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(strings.ToLower(input))
-		words := strings.Fields(input)
-		re := regexp.MustCompile(`^[a-zA-Z]+$`)
+func (g *Game) ParsePlayerRequest(input string) Request {
+	words := strings.Fields(input)
 
-		var validWords []string
-		for _, word := range words {
-			if re.MatchString(word) {
-				validWords = append(validWords, word)
-			}
-		}
-
-		flag = false
+	if len(words) == 0 {
+		fmt.Println("No input detected.")
+		return Request{}
 	}
 
+	r := Request{}
+
+	switch words[0] {
+	case "play", "p":
+		r.rType = "p"
+		for i := 1; i < len(words); i++ {
+			num, err := strconv.Atoi(words[i])
+			if err != nil {
+				fmt.Println("Invalid number:", words[i])
+				continue
+			}
+			if len(r.cards) < 4 {
+				r.cards = append(r.cards, num)
+			} else {
+				break
+			}
+		}
+		return r
+	case "skip", "s":
+		r.rType = "s"
+		return r
+	case "refresh", "r":
+		r.rType = "r"
+		return r
+	case "exit", "e":
+		r.rType = "e"
+		return r
+	default:
+		fmt.Println("Error reading user request.")
+		return Request{}
+	}
 }
