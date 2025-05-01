@@ -23,6 +23,7 @@ type Game struct {
 	gameDeck           *deck.Deck
 	state              GameState
 	countOf2s          int
+	countOfJacks       int
 }
 
 func (g *Game) SetCurrentPlayer(idx int) {
@@ -33,8 +34,8 @@ func (g *Game) NextPlayer() {
 	g.currentPlayerIndex = (g.currentPlayerIndex + 1) % len(g.playerList)
 }
 
-// AddPlayers add players to game
-func (g *Game) AddPlayers() {
+// AddPlayersLocal add players to game
+func (g *Game) AddPlayersLocal() {
 	reader := bufio.NewReader(os.Stdin)
 	flag := true
 
@@ -75,7 +76,7 @@ func (g *Game) AddPlayers() {
 	}
 }
 
-// distributeCards builds deck, distributes cards
+// distributeCards builds deck, distributes cards, only done at start of game
 func (g *Game) distributeCards() {
 
 	g.gameDeck = deck.GetInstance()
@@ -111,57 +112,35 @@ func (g *Game) PickUpCard(player *player.Player) {
 	player.PHand.AddCard(g.gameDeck.RemoveCardFromDeck())
 }
 
-// play card(s) ( up to 4 cards at once possible )
-func (g *Game) PlaySingleCard(player *player.Player, card1 *card.Card) {
-	topCard := g.gameDeck.GetTopCard()
-
-	if topCard.ValidatePlay(card1) {
-		removedCard := player.PHand.RemoveCardFromHand(card1)
-		g.gameDeck.AddCardToActive(removedCard)
-		g.gameDeck.RefreshTopCard()
-		g.CheckWinner()
-	}
-}
-
-func (g *Game) PlayDoubleCard(player *player.Player, card1 *card.Card, card2 *card.Card) {
-	topCard := g.gameDeck.GetTopCard()
-
-	if !topCard.ValidatePlay(card1) || !card1.EqualValue(card2) {
-		fmt.Println("Invalid Card selection")
-		return
-	}
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card1))
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card2))
-	g.gameDeck.RefreshTopCard()
-	g.CheckWinner()
-}
-
-func (g *Game) PlayTripleCard(player *player.Player, card1 *card.Card, card2 *card.Card, card3 *card.Card) {
-	topCard := g.gameDeck.GetTopCard()
-
-	if !topCard.ValidatePlay(card1) || !card1.EqualValue(card2) || !card2.EqualValue(card3) {
-		fmt.Println("Invalid Card selection")
+// PlayCards play up to 4 cards at once
+func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
+	if len(cards) == 0 || len(cards) > 4 {
+		fmt.Println("Invalid number of cards")
 		return
 	}
 
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card1))
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card2))
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card3))
-	g.gameDeck.RefreshTopCard()
-	g.CheckWinner()
-}
-
-func (g *Game) PlayQuadroCard(player *player.Player, card1 *card.Card, card2 *card.Card, card3 *card.Card, card4 *card.Card) {
 	topCard := g.gameDeck.GetTopCard()
 
-	if !topCard.ValidatePlay(card1) || !card1.EqualValue(card2) || !card2.EqualValue(card3) || !card3.EqualValue(card4) {
-		fmt.Println("Invalid Card selection")
+	// Validate first card against top card
+	if !topCard.ValidatePlay(cards[0]) {
+		fmt.Println("First card does not match the top")
 		return
 	}
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card1))
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card2))
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card3))
-	g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(card4))
+
+	// Validate all cards are the same value
+	firstValue := cards[0].GetValue()
+	for _, c := range cards {
+		if c.GetValue() != firstValue {
+			fmt.Println("All played cards must have the same value")
+			return
+		}
+	}
+
+	// All checks passed, play the cards
+	for _, c := range cards {
+		g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(c))
+	}
+
 	g.gameDeck.RefreshTopCard()
 	g.CheckWinner()
 }
@@ -178,8 +157,8 @@ func (g *Game) PlayTwosCard() {
 
 }
 
-func (g *Game) PlayCardSelector(player *player.Player, firstCard *card.Card) {
-	switch firstCard.GetValue() {
+func (g *Game) PlayCardSelector(player *player.Player, cards []*card.Card) {
+	switch cards[0].GetValue() {
 	case "8":
 		g.PlayCrazy8Card()
 	case "J":
@@ -187,7 +166,7 @@ func (g *Game) PlayCardSelector(player *player.Player, firstCard *card.Card) {
 	case "2":
 		g.PlayTwosCard()
 	default:
-		return
+		g.PlayCards(player, cards)
 	}
 }
 
