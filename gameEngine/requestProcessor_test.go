@@ -62,7 +62,7 @@ func TestGetPlayerInput(t *testing.T) {
 		}
 	}()
 
-	result := g.GetPlayerInput()
+	result := g.GetPlayerPlayInput()
 
 	expected := "play 5 6"
 	if result != expected {

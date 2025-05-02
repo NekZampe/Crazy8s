@@ -60,8 +60,8 @@ func (d *Deck) AddCardToReserve(c *card.Card) {
 	d.reservePile = append(d.reservePile, c)
 }
 
-// RemoveCardFromDeck : Removes top card from reserve pile
-func (d *Deck) RemoveCardFromDeck() *card.Card {
+// RemoveCardFromReserveDeck : Removes top card from reserve pile
+func (d *Deck) RemoveCardFromReserveDeck() *card.Card {
 	if len(d.reservePile) == 0 {
 		fmt.Println("Deck is empty")
 		return nil

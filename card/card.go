@@ -17,6 +17,8 @@ func NewCard(id int, suit string, value string) *Card {
 	return card
 }
 
+func (c *Card) SetSuit(s string) { c.suit = s }
+
 // Getters
 func (c *Card) GetSuit() string {
 	return c.suit

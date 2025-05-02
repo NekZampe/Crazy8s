@@ -34,7 +34,7 @@ func (g *Game) NextPlayer() {
 	g.currentPlayerIndex = (g.currentPlayerIndex + 1) % len(g.playerList)
 }
 
-// AddPlayersLocal add players to game
+// AddPlayersLocal add players to game locally
 func (g *Game) AddPlayersLocal() {
 	reader := bufio.NewReader(os.Stdin)
 	flag := true
@@ -83,7 +83,7 @@ func (g *Game) distributeCards() {
 
 	for _, currentP := range g.playerList {
 		for i := 0; i < 8; i++ {
-			currentP.PHand.AddCard(g.gameDeck.RemoveCardFromDeck())
+			currentP.PHand.AddCard(g.gameDeck.RemoveCardFromReserveDeck())
 		}
 	}
 }
@@ -95,11 +95,18 @@ func (g *Game) ShufflePlayers() {
 }
 
 func (g *Game) setTopCard() {
-	g.gameDeck.AddCardToActive(g.gameDeck.RemoveCardFromDeck())
+	g.gameDeck.AddCardToActive(g.gameDeck.RemoveCardFromReserveDeck())
 	g.gameDeck.RefreshTopCard()
 }
 
 func (g *Game) initializeGame() {
+
+	err := g.Transition(Start)
+	if err != nil {
+		fmt.Println("State transition error:", err)
+		return
+	}
+
 	g.distributeCards()
 	g.ShufflePlayers()
 	g.setTopCard()
@@ -109,11 +116,19 @@ func (g *Game) initializeGame() {
 
 // PickUpCard : Player takes top card from reserve deck (played on start of turn )
 func (g *Game) PickUpCard(player *player.Player) {
-	player.PHand.AddCard(g.gameDeck.RemoveCardFromDeck())
+	player.PHand.AddCard(g.gameDeck.RemoveCardFromReserveDeck())
 }
 
 // PlayCards play up to 4 cards at once
 func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
+
+	//Pick up cards if twos were played
+	if g.countOf2s > 1 {
+		for i := 0; i < g.countOf2s; i++ {
+			g.PickUpCard(player)
+		}
+	}
+
 	if len(cards) == 0 || len(cards) > 4 {
 		fmt.Println("Invalid number of cards")
 		return
@@ -121,10 +136,12 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 
 	topCard := g.gameDeck.GetTopCard()
 
-	// Validate first card against top card
-	if !topCard.ValidatePlay(cards[0]) {
-		fmt.Println("First card does not match the top")
-		return
+	// Validate first card against top card if it's not a crazy 8
+	if cards[0].GetValue() != "8" {
+		if !topCard.ValidatePlay(cards[0]) {
+			fmt.Println("First card does not match the top")
+			return
+		}
 	}
 
 	// Validate all cards are the same value
@@ -140,36 +157,27 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 	for _, c := range cards {
 		g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(c))
 	}
-
 	g.gameDeck.RefreshTopCard()
-	g.CheckWinner()
-}
 
-func (g *Game) PlayCrazy8Card() {
-
-}
-
-func (g *Game) PlayJackCard() {
-
-}
-
-func (g *Game) PlayTwosCard() {
-
-}
-
-func (g *Game) PlayCardSelector(player *player.Player, cards []*card.Card) {
-	switch cards[0].GetValue() {
+	switch firstValue {
 	case "8":
-		g.PlayCrazy8Card()
+		suit := g.GetPlayerC8Input()
+		g.gameDeck.GetTopCard().SetSuit(suit) //If we set suit of top card to player requested value we ensure only requested suit can be played on next turn
 	case "J":
-		g.PlayJackCard()
+		g.countOfJacks = len(cards)
 	case "2":
-		g.PlayTwosCard()
+		if g.countOf2s == 0 {
+			g.countOf2s = len(cards)
+		} else {
+			g.countOf2s += len(cards)
+		}
 	default:
-		g.PlayCards(player, cards)
+		g.countOf2s = 0
 	}
+	g.CheckWinner() //Check to see if player has zero cards left
 }
 
+// CheckWinner : Placeholder win function
 func (g *Game) CheckWinner() {
 	if g.playerList[g.currentPlayerIndex].PHand.GetCount() == 0 {
 		fmt.Printf("END OF GAME, Player %s won!", g.playerList[g.currentPlayerIndex].GetPlayerName())

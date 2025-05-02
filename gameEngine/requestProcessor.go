@@ -13,10 +13,10 @@ type Request struct {
 	cards []int
 }
 
-// rTypes: Play[p] , Skip[s] , refresh[r] , exit[e]
+// rTypes: play[p] , Skip[s] , refresh[r] , exit[e]
 // Cards: 1 4 7... [ max 4 card IDs ]
 
-func (g *Game) GetPlayerInput() string {
+func (g *Game) GetPlayerPlayInput() string {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf("Your turn: ")
 	input, _ := reader.ReadString('\n')
@@ -61,5 +61,28 @@ func (g *Game) ParsePlayerRequest(input string) Request {
 	default:
 		fmt.Println("Error reading user request.")
 		return Request{}
+	}
+}
+
+func (g *Game) GetPlayerC8Input() string {
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Println("Entire desired suit: hearts[h] , diamonds[d], spades[s] , clovers[c]")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(strings.ToLower(input))
+
+		switch input {
+		case "h", "heart", "hearts":
+			return "hearts"
+		case "d", "diamond", "diamonds":
+			return "diamonds"
+		case "s", "spade", "spades":
+			return "spades"
+		case "c", "clover", "clovers":
+			return "clovers"
+		default:
+			fmt.Printf("Error Invalid Input: %s\n", input)
+		}
 	}
 }
