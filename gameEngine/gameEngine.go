@@ -24,6 +24,7 @@ type Game struct {
 	state              GameState
 	countOf2s          int
 	countOfJacks       int
+	IsGameOver         bool
 }
 
 func (g *Game) SetCurrentPlayer(idx int) {
@@ -76,7 +77,7 @@ func (g *Game) AddPlayersLocal() {
 	}
 }
 
-// distributeCards builds deck, distributes cards, only done at start of game
+// distributeCards builds deck, distributes cards, ( only done at start of game )
 func (g *Game) distributeCards() {
 
 	g.gameDeck = deck.GetInstance()
@@ -107,6 +108,7 @@ func (g *Game) initializeGame() {
 		return
 	}
 
+	g.IsGameOver = false
 	g.distributeCards()
 	g.ShufflePlayers()
 	g.setTopCard()
@@ -123,6 +125,7 @@ func (g *Game) PickUpCard(player *player.Player) {
 func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 
 	//Pick up cards if twos were played
+	//TODO: Make into own function
 	if g.countOf2s > 1 {
 		for i := 0; i < g.countOf2s; i++ {
 			g.PickUpCard(player)
@@ -181,6 +184,7 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 func (g *Game) CheckWinner() {
 	if g.playerList[g.currentPlayerIndex].PHand.GetCount() == 0 {
 		fmt.Printf("END OF GAME, Player %s won!", g.playerList[g.currentPlayerIndex].GetPlayerName())
+		g.IsGameOver = true
 		os.Exit(1)
 	}
 }
@@ -197,4 +201,15 @@ func (g *Game) IsValidPlay(player *player.Player, cards []int) bool {
 	}
 
 	return true // All cards are valid
+}
+
+func (g *Game) mainLoop() {
+
+	//Players join
+	//Cards shuffled and distributed
+	//each player plays until one has no cards and is declared the winner
+
+	for !g.IsGameOver {
+
+	}
 }
