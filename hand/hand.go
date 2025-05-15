@@ -45,7 +45,7 @@ func (h *Hand) OrganizeHand() {
 }
 
 // PrintHand prints the cards in the hand with their index
-// TODO : Organizes hand for each print might lead to unnecessary calculations, check for more optimized method later on
+// TODO : Organizes hand for each print might lead to unnecessary overhead, check for more optimized method later on
 func (h *Hand) PrintHand() {
 	h.OrganizeHand()
 	for i, c := range h.cards {

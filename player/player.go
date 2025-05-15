@@ -1,6 +1,7 @@
 package player
 
 import (
+	"Crazy8s/card"
 	"Crazy8s/hand"
 	"fmt"
 	"math/rand"
@@ -15,7 +16,7 @@ var (
 )
 
 type Player struct {
-	username   string
+	name       string
 	id         int
 	PHand      *hand.Hand
 	playerType string // "human" or "cpu"
@@ -24,7 +25,7 @@ type Player struct {
 
 // Getter methods
 func (p *Player) GetPlayerName() string {
-	return p.username
+	return p.name
 }
 
 func (p *Player) GetPlayerId() int {
@@ -41,7 +42,7 @@ func (p *Player) GetDifficulty() string {
 
 // Setter methods
 func (p *Player) SetPlayerName(name string) {
-	p.username = name
+	p.name = name
 }
 
 func (p *Player) SetPlayerId(id int) {
@@ -54,7 +55,7 @@ func CreatePlayer() *Player {
 	name := fmt.Sprintf("Player %d", totalPlayers)
 
 	return &Player{
-		username:   name,
+		name:       name,
 		id:         generateUniqueID(),
 		PHand:      &hand.Hand{},
 		playerType: "human",
@@ -68,7 +69,7 @@ func CreateCPUPlayer(difficulty string) *Player {
 	name := fmt.Sprintf("CPU %d", totalCPUs)
 
 	return &Player{
-		username:   name,
+		name:       name,
 		id:         generateUniqueID(),
 		PHand:      &hand.Hand{},
 		playerType: "cpu",
@@ -85,4 +86,19 @@ func generateUniqueID() int {
 			return id
 		}
 	}
+}
+
+// GetCardsByIndexes Returns the players cards by index ( used with requestProcessor to retrieve played cards )
+func (p *Player) GetCardsByIndexes(indexes []int) []*card.Card {
+	var selected []*card.Card
+	cards := p.PHand.GetCards()
+
+	for _, idx := range indexes {
+		if idx >= 0 && idx < len(cards) {
+			selected = append(selected, cards[idx])
+		} else {
+			fmt.Printf("Warning: index %d is out of range\n", idx)
+		}
+	}
+	return selected
 }

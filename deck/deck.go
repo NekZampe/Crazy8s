@@ -66,10 +66,10 @@ func (d *Deck) RemoveCardFromReserveDeck() *card.Card {
 		fmt.Println("Deck is empty")
 		return nil
 	}
-	removedCard := d.reservePile[len(d.reservePile)-1]
-	d.reservePile = d.reservePile[1:]
+	lastIndex := len(d.reservePile) - 1
+	removedCard := d.reservePile[lastIndex]
+	d.reservePile = d.reservePile[:lastIndex]
 	return removedCard
-
 }
 
 // InitializeDeck : Creates and shuffles deck
@@ -81,8 +81,8 @@ func (d *Deck) initializeDeck() {
 		"8", "9", "10", "J", "Q", "K",
 	}
 
-	for _, suit := range values {
-		for _, value := range suits {
+	for _, value := range values {
+		for _, suit := range suits {
 			c := card.NewCard(index, suit, value)
 			d.reservePile = append(d.reservePile, c)
 			index++

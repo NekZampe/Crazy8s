@@ -27,6 +27,12 @@ type Game struct {
 	IsGameOver         bool
 }
 
+func NewGame() *Game {
+	return &Game{
+		state: initial,
+	}
+}
+
 func (g *Game) SetCurrentPlayer(idx int) {
 	g.currentPlayerIndex = idx
 }
@@ -35,8 +41,8 @@ func (g *Game) NextPlayer() {
 	g.currentPlayerIndex = (g.currentPlayerIndex + 1) % len(g.playerList)
 }
 
-// AddPlayersLocal add players to game locally
-func (g *Game) AddPlayersLocal() {
+// addPlayersLocal add players to game locally
+func (g *Game) addPlayersLocal() {
 	reader := bufio.NewReader(os.Stdin)
 	flag := true
 
@@ -58,7 +64,11 @@ func (g *Game) AddPlayersLocal() {
 
 		switch input {
 		case "start":
-			flag = false
+			if len(g.playerList) > 1 {
+				flag = false
+			} else {
+				fmt.Println("Not enough players")
+			}
 		case "1":
 			newPlayer := player.CreatePlayer()
 			g.playerList = append(g.playerList, newPlayer)
@@ -79,6 +89,11 @@ func (g *Game) AddPlayersLocal() {
 
 // distributeCards builds deck, distributes cards, ( only done at start of game )
 func (g *Game) distributeCards() {
+
+	err := g.Transition(Deal)
+	if err != nil {
+		return
+	}
 
 	g.gameDeck = deck.GetInstance()
 
@@ -122,8 +137,9 @@ func (g *Game) PickUpCard(player *player.Player) {
 }
 
 // PlayCards play up to 4 cards at once
-func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
+func (g *Game) PlayCards(player *player.Player, cards []*card.Card) error {
 
+	fmt.Println("CARDS PASSED TO playCards:", cards)
 	//Pick up cards if twos were played
 	//TODO: Make into own function
 	if g.countOf2s > 1 {
@@ -133,8 +149,7 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 	}
 
 	if len(cards) == 0 || len(cards) > 4 {
-		fmt.Println("Invalid number of cards")
-		return
+		return fmt.Errorf("invalid number of cards")
 	}
 
 	topCard := g.gameDeck.GetTopCard()
@@ -142,8 +157,7 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 	// Validate first card against top card if it's not a crazy 8
 	if cards[0].GetValue() != "8" {
 		if !topCard.ValidatePlay(cards[0]) {
-			fmt.Println("First card does not match the top")
-			return
+			return fmt.Errorf("first card does not match the top")
 		}
 	}
 
@@ -151,8 +165,7 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 	firstValue := cards[0].GetValue()
 	for _, c := range cards {
 		if c.GetValue() != firstValue {
-			fmt.Println("All played cards must have the same value")
-			return
+			return fmt.Errorf("all played cards must have matching value")
 		}
 	}
 
@@ -166,18 +179,21 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) {
 	case "8":
 		suit := g.GetPlayerC8Input()
 		g.gameDeck.GetTopCard().SetSuit(suit) //If we set suit of top card to player requested value we ensure only requested suit can be played on next turn
+		return nil
 	case "J":
 		g.countOfJacks = len(cards)
+		return nil
 	case "2":
 		if g.countOf2s == 0 {
 			g.countOf2s = len(cards)
 		} else {
 			g.countOf2s += len(cards)
 		}
+		return nil
 	default:
 		g.countOf2s = 0
+		return nil
 	}
-	g.CheckWinner() //Check to see if player has zero cards left
 }
 
 // CheckWinner : Placeholder win function
@@ -207,9 +223,71 @@ func (g *Game) mainLoop() {
 
 	//Players join
 	//Cards shuffled and distributed
-	//each player plays until one has no cards and is declared the winner
+	//Each player plays until one player is first to have no cards and is declared the winner
 
 	for !g.IsGameOver {
 
+		p := g.playerList[g.currentPlayerIndex]
+
+		err := g.Transition(PlayerTurn)
+		if err != nil {
+			return
+		}
+
+		p.PHand.PrintHand()
+		var request Request
+		for {
+			input := g.GetPlayerPlayInput()
+			request = g.ParsePlayerRequest(input)
+
+			if request.rType != "" {
+				break
+			}
+			fmt.Println("Please enter a valid command.")
+		}
+
+		switch request.rType {
+		case "p":
+			cards := p.GetCardsByIndexes(request.cards)
+
+			if len(cards) == 0 {
+				fmt.Println("No valid cards selected.")
+				continue
+			}
+
+			err := g.PlayCards(p, cards)
+			if err != nil {
+				fmt.Println("Invalid play:", err)
+				continue // Let player retry
+			}
+
+			err = g.Transition(CheckWin)
+			if err != nil {
+				return
+			}
+
+			g.CheckWinner()
+			g.NextPlayer()
+
+		case "s":
+			g.PickUpCard(p)
+			err := g.Transition(CheckWin)
+			if err != nil {
+				return
+			}
+			g.NextPlayer()
+		case "e":
+			fmt.Println(p.GetPlayerName() + " chose to exit the game.")
+			return
+		default:
+			fmt.Println("Invalid request. Please try again.")
+		}
+
 	}
+}
+
+func (g *Game) Play() {
+	g.addPlayersLocal()
+	g.initializeGame()
+	g.mainLoop()
 }

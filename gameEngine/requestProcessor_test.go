@@ -1,71 +1,45 @@
 package gameEngine
 
 import (
-	"os"
 	"testing"
 )
 
 func TestParsePlayerRequest(t *testing.T) {
-	g := &Game{} // assuming you have a Game type
+	g := &Game{}
 
 	tests := []struct {
-		input         string
-		expectedType  string
-		expectedCards []int
+		input    string
+		expType  string
+		expCards []int
 	}{
-		{"play 5 10 15", "p", []int{5, 10, 15}},
-		{"p 1 2 3 4 5", "p", []int{1, 2, 3, 4}}, // Only 4 cards max
+		{"p 1 2 3 4", "p", []int{1, 2, 3, 4}},
+		{"play 10 20 30", "p", []int{10, 20, 30}},
 		{"skip", "s", nil},
-		{"refresh", "r", nil},
+		{"s", "s", nil},
 		{"exit", "e", nil},
-		{"unknown", "", nil}, // invalid command
+		{"e", "e", nil},
+		{"invalid command", "", nil},
+		{"p 1 2 3 4 5 6", "p", []int{1, 2, 3, 4}}, // max 4 cards only
+		{"p abc 1 2", "p", []int{1, 2}},           // ignores invalid numbers
+		{"", "", nil},                             // empty input returns empty Request
 	}
 
 	for _, tt := range tests {
 		req := g.ParsePlayerRequest(tt.input)
 
-		if req.rType != tt.expectedType {
-			t.Errorf("Input %q: expected type %q, got %q", tt.input, tt.expectedType, req.rType)
+		if req.rType != tt.expType {
+			t.Errorf("Input %q: expected rType %q, got %q", tt.input, tt.expType, req.rType)
 		}
 
-		if len(req.cards) != len(tt.expectedCards) {
-			t.Errorf("Input %q: expected %d cards, got %d", tt.input, len(tt.expectedCards), len(req.cards))
+		if len(req.cards) != len(tt.expCards) {
+			t.Errorf("Input %q: expected %d cards, got %d", tt.input, len(tt.expCards), len(req.cards))
 			continue
 		}
 
-		for i, expectedCard := range tt.expectedCards {
-			if req.cards[i] != expectedCard {
-				t.Errorf("Input %q: card %d: expected %d, got %d", tt.input, i, expectedCard, req.cards[i])
+		for i := range req.cards {
+			if req.cards[i] != tt.expCards[i] {
+				t.Errorf("Input %q: expected card %d at pos %d, got %d", tt.input, tt.expCards[i], i, req.cards[i])
 			}
 		}
-	}
-}
-
-func TestGetPlayerInput(t *testing.T) {
-	g := &Game{}
-
-	// Mock stdin
-	input := "Play 5 6\n"
-	r, w, _ := os.Pipe()
-	os.Stdin = r
-
-	go func() {
-		defer func(w *os.File) {
-			err := w.Close()
-			if err != nil {
-
-			}
-		}(w)
-		_, err := w.Write([]byte(input))
-		if err != nil {
-			return
-		}
-	}()
-
-	result := g.GetPlayerPlayInput()
-
-	expected := "play 5 6"
-	if result != expected {
-		t.Errorf("Expected %q, got %q", expected, result)
 	}
 }

@@ -1,31 +1,61 @@
-package player_test
+package player
 
-//func TestCreatePlayer(t *testing.T) {
-//	p := player.CreatePlayer("Alice", 42)
-//
-//	if p.GetPlayerName() != "Alice" {
-//		t.Errorf("expected name 'Alice', got '%s'", p.GetPlayerName())
-//	}
-//
-//	if p.GetPlayerId() != 42 {
-//		t.Errorf("expected ID 42, got %d", p.GetPlayerId())
-//	}
-//}
-//
-//func TestSetPlayerName(t *testing.T) {
-//	p := player.CreatePlayer("Temp", 1)
-//	p.SetPlayerName("Bob")
-//
-//	if p.GetPlayerName() != "Bob" {
-//		t.Errorf("expected name 'Bob', got '%s'", p.GetPlayerName())
-//	}
-//}
-//
-//func TestSetPlayerId(t *testing.T) {
-//	p := player.CreatePlayer("Temp", 0)
-//	p.SetPlayerId(99)
-//
-//	if p.GetPlayerId() != 99 {
-//		t.Errorf("expected ID 99, got %d", p.GetPlayerId())
-//	}
-//}
+import (
+	"Crazy8s/card"
+	"Crazy8s/hand"
+	"testing"
+)
+
+func TestCreatePlayer(t *testing.T) {
+	p := CreatePlayer()
+
+	if p.GetType() != "human" {
+		t.Errorf("Expected type 'human', got '%s'", p.GetType())
+	}
+	if p.GetDifficulty() != "" {
+		t.Errorf("Expected difficulty to be empty, got '%s'", p.GetDifficulty())
+	}
+	if p.PHand == nil {
+		t.Error("Expected hand to be initialized")
+	}
+}
+
+func TestCreateCPUPlayer(t *testing.T) {
+	cpu := CreateCPUPlayer("optimal")
+
+	if cpu.GetType() != "cpu" {
+		t.Errorf("Expected type 'cpu', got '%s'", cpu.GetType())
+	}
+	if cpu.GetDifficulty() != "optimal" {
+		t.Errorf("Expected difficulty 'optimal', got '%s'", cpu.GetDifficulty())
+	}
+	if cpu.PHand == nil {
+		t.Error("Expected hand to be initialized")
+	}
+}
+
+func TestGetCardsByIndexes(t *testing.T) {
+	c1 := card.NewCard(101, "hearts", "7")
+	c2 := card.NewCard(102, "spades", "K")
+	c3 := card.NewCard(103, "diamonds", "5")
+
+	h := &hand.Hand{}
+	h.AddCard(c1)
+	h.AddCard(c2)
+	h.AddCard(c3)
+
+	p := &Player{
+		name:  "Test Player",
+		id:    999,
+		PHand: h,
+	}
+
+	selected := p.GetCardsByIndexes([]int{101, 103})
+	if len(selected) != 2 {
+		t.Fatalf("Expected 2 cards, got %d", len(selected))
+	}
+
+	if selected[0].GetID() != 101 || selected[1].GetID() != 103 {
+		t.Errorf("Expected IDs 101 and 103, got %d and %d", selected[0].GetID(), selected[1].GetID())
+	}
+}

@@ -1,6 +1,7 @@
 package gameEngine
 
 import (
+	"Crazy8s/player"
 	"bufio"
 	"fmt"
 	"os"
@@ -9,16 +10,18 @@ import (
 )
 
 type Request struct {
-	rType string
-	cards []int
+	player *player.Player
+	rType  string
+	cards  []int
 }
 
-// rTypes: play[p] , Skip[s] , refresh[r] , exit[e]
+// rTypes: play[p] , skip[s] , exit[e]
 // Cards: 1 4 7... [ max 4 card IDs ]
 
 func (g *Game) GetPlayerPlayInput() string {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf("Your turn: ")
+	printPlayOptions()
 	input, _ := reader.ReadString('\n')
 	return strings.TrimSpace(strings.ToLower(input))
 }
@@ -39,7 +42,7 @@ func (g *Game) ParsePlayerRequest(input string) Request {
 		for i := 1; i < len(words); i++ {
 			num, err := strconv.Atoi(words[i])
 			if err != nil {
-				fmt.Println("Invalid number:", words[i])
+				fmt.Println("Invalid index:", words[i])
 				continue
 			}
 			if len(r.cards) < 4 {
@@ -48,12 +51,10 @@ func (g *Game) ParsePlayerRequest(input string) Request {
 				break
 			}
 		}
+		fmt.Printf("%v\n", r.cards)
 		return r
 	case "skip", "s":
 		r.rType = "s"
-		return r
-	case "refresh", "r":
-		r.rType = "r"
 		return r
 	case "exit", "e":
 		r.rType = "e"
@@ -85,4 +86,11 @@ func (g *Game) GetPlayerC8Input() string {
 			fmt.Printf("Error Invalid Input: %s\n", input)
 		}
 	}
+}
+
+func printPlayOptions() {
+	fmt.Println("Options:")
+	fmt.Println("  play [p]  - Play cards by specifying their indexes. Example: 'play 2 4 5'")
+	fmt.Println("  skip [s]  - Skip your turn and pick up a card")
+	fmt.Println("  exit [e]  - Leave the game")
 }

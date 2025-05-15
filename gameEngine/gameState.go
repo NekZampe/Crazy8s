@@ -5,7 +5,8 @@ import "fmt"
 type GameState string
 
 const (
-	AddPlayers GameState = "AddPlayers"
+	initial    GameState = "Initial"
+	AddPlayers           = "AddPlayers"
 	Start                = "Start"
 	Deal                 = "DealCards"
 	PlayerTurn           = "PlayerTurn"
@@ -15,6 +16,7 @@ const (
 
 func (g *Game) Transition(newState GameState) error {
 	validTransitions := map[GameState][]GameState{
+		initial:    {AddPlayers},
 		AddPlayers: {Start},
 		Start:      {Deal},
 		Deal:       {PlayerTurn},
