@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -258,6 +259,12 @@ func (g *Game) mainLoop() {
 			err := g.PlayCards(p, cards)
 			if err != nil {
 				fmt.Println("Invalid play:", err)
+				err = g.Transition(CheckWin) //need to transition again
+				if err != nil {
+					return
+				}
+				fmt.Println("Please try again...")
+				fmt.Println()
 				continue // Let player retry
 			}
 
@@ -287,6 +294,13 @@ func (g *Game) mainLoop() {
 }
 
 func (g *Game) Play() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("❗ PANIC RECOVERED:", r)
+			debug.PrintStack()
+		}
+	}()
+
 	g.addPlayersLocal()
 	g.initializeGame()
 	g.mainLoop()
