@@ -73,3 +73,7 @@ func (c *Card) EqualValue(other *Card) bool {
 func (c *Card) ValidatePlay(other *Card) bool {
 	return c.EqualValue(other) || c.EqualSuit(other)
 }
+
+func (c *Card) PrintCard() string {
+	return fmt.Sprintf("%s of %s\n", c.GetValue(), c.GetSuit())
+}

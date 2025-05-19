@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"os/exec"
+	"runtime"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -54,6 +56,7 @@ func (g *Game) addPlayersLocal() {
 	}
 
 	for flag {
+		clearConsole()
 		fmt.Println("\nAdd Player:")
 		fmt.Println("1: New Human Player")
 		fmt.Println("2: New CPU Player (Optimal)")
@@ -140,7 +143,7 @@ func (g *Game) PickUpCard(player *player.Player) {
 // PlayCards play up to 4 cards at once
 func (g *Game) PlayCards(player *player.Player, cards []*card.Card) error {
 
-	fmt.Println("CARDS PASSED TO playCards:", cards)
+	//fmt.Println("CARDS PASSED TO playCards:", cards)
 	//Pick up cards if twos were played
 	//TODO: Make into own function
 	if g.countOf2s > 1 {
@@ -234,7 +237,8 @@ func (g *Game) mainLoop() {
 		if err != nil {
 			return
 		}
-
+		clearConsole()
+		g.gameDeck.PrintTopCard()
 		p.PHand.PrintHand()
 		var request Request
 		for {
@@ -304,4 +308,21 @@ func (g *Game) Play() {
 	g.addPlayersLocal()
 	g.initializeGame()
 	g.mainLoop()
+}
+
+// TODO: Move into UI related folder
+func clearConsole() {
+	// Try ANSI escape codes first
+	time.Sleep(100 * time.Millisecond) // Optional: prevents flicker
+	fmt.Print("\033[2J\033[H")
+
+	// Fallback: use OS command if ANSI is not supported
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", "cls")
+	} else {
+		cmd = exec.Command("clear")
+	}
+	cmd.Stdout = os.Stdout
+	_ = cmd.Run()
 }

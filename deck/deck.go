@@ -98,3 +98,7 @@ func (d *Deck) ShuffleDeck() {
 		d.reservePile[i], d.reservePile[j] = d.reservePile[j], d.reservePile[i]
 	})
 }
+
+func (d *Deck) PrintTopCard() {
+	fmt.Println("Top Card:", d.GetTopCard().PrintCard())
+}

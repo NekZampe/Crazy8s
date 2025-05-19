@@ -56,7 +56,7 @@ func TestRemoveCard(t *testing.T) {
 		t.Skip("Reserve pile is empty, skipping test")
 	}
 
-	d.RemoveCardFromDeck()
+	d.RemoveCardFromReserveDeck()
 
 	if len(d.GetReservePile()) != initial-1 {
 		t.Errorf("Card was not removed from reserve pile")
@@ -82,4 +82,10 @@ func TestShuffleDeck(t *testing.T) {
 	if sameOrder {
 		t.Log("Deck appears to have same order after shuffle (unlikely)")
 	}
+}
+
+func TestPrintTopCard(t *testing.T) {
+	d := deck.GetInstance()
+	d.AddCardToActive(d.RemoveCardFromReserveDeck())
+	d.PrintTopCard()
 }
