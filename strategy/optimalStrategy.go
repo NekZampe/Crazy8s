@@ -2,31 +2,13 @@ package strategy
 
 import (
 	"Crazy8s/card"
-	"strconv"
-	"strings"
 )
 
 type OptimalStrategy struct{}
 
+// ChooseCards finds all viable choices of playable cards of the cpu and selects the one with the most cards played, returns the play string ex: 'play 2 3 4'
 func (s *OptimalStrategy) ChooseCards(hand []*card.Card, topCard *card.Card) string {
-	viableMap := make(map[int][]int)
-
-	for i, c := range hand {
-		if c.GetValue() == "8" || c.EqualValue(topCard) || c.EqualSuit(topCard) {
-			currentSet := []int{i} // Start new set with this card
-
-			for j, other := range hand {
-				if j != i && other.EqualValue(c) {
-					currentSet = append(currentSet, j)
-				}
-			}
-
-			// Copy currentSet to avoid reference issues
-			setCopy := make([]int, len(currentSet))
-			copy(setCopy, currentSet)
-			viableMap[i] = setCopy
-		}
-	}
+	viableMap := GetViablePlays(hand, topCard)
 
 	// Skip turn if no viable plays
 	if len(viableMap) == 0 {
@@ -51,14 +33,55 @@ func GetLargestSet(viableMap map[int][]int) []int {
 	return largest
 }
 
-func CreatePlayCommand(playSet []int) string {
-	var builder strings.Builder
-	builder.WriteString("play ")
+// HandleCrazy8 selects suit based on the highest freq suit in cpu's hand
+func (s *OptimalStrategy) HandleCrazy8(hand []*card.Card) string {
 
-	for _, val := range playSet {
-		builder.WriteString(strconv.Itoa(val))
-		builder.WriteString(" ")
+	// Order of suits: Clubs, Diamonds, Hearts, and Spades
+	countOfSuits := []int{0, 0, 0, 0}
+
+	// total up number of each suit in hand
+	for _, c := range hand {
+		switch c.GetSuit() {
+		case "clubs":
+			countOfSuits[0]++
+		case "diamonds":
+			countOfSuits[1]++
+		case "hearts":
+			countOfSuits[2]++
+		case "spades":
+			countOfSuits[3]++
+		}
 	}
 
-	return strings.TrimSpace(builder.String())
+	//Get max index and return the suit string
+	maximum := GetMaxIndex(countOfSuits)
+
+	switch maximum {
+	case 0:
+		return "clubs"
+	case 1:
+		return "diamonds"
+	case 2:
+		return "hearts"
+	case 3:
+		return "spades"
+	default:
+		return "hearts"
+	}
+
+}
+
+func GetMaxIndex(array []int) int {
+
+	maxIdx := 0
+	maxVal := -1
+
+	for i, v := range array {
+		if v > maxVal {
+			maxVal = v
+			maxIdx = i
+		}
+	}
+
+	return maxIdx
 }

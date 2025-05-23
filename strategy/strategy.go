@@ -3,5 +3,6 @@ package strategy
 import "Crazy8s/card"
 
 type PlayStrategy interface {
-	ChooseCard(hand []*card.Card, topCard *card.Card) *card.Card
+	ChooseCards(hand []*card.Card, topCard *card.Card) string
+	HandleCrazy8(hand []*card.Card) string
 }

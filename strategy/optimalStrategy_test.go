@@ -68,3 +68,22 @@ func TestChooseCards_PlayMatchingValue(t *testing.T) {
 		t.Errorf("Expected 'play 0 1 2', got: %s", result)
 	}
 }
+
+func TestHandleCrazy8(t *testing.T) {
+	hand := []*card.Card{
+		card.NewCard(1, "hearts", "A"),
+		card.NewCard(2, "diamonds", "Q"),
+		card.NewCard(3, "clubs", "K"),
+		card.NewCard(4, "clubs", "K"),
+		card.NewCard(5, "clubs", "K"),
+		card.NewCard(6, "clubs", "K"),
+		card.NewCard(7, "clubs", "K"),
+	}
+
+	strategy := &OptimalStrategy{}
+	result := strategy.HandleCrazy8(hand)
+
+	if result != "clubs" {
+		t.Errorf("Expected clubs, got: %s", result)
+	}
+}
