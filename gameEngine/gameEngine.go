@@ -79,7 +79,7 @@ func (g *Game) addPlayersLocal() {
 			fmt.Println("Created new human newPlayer:", newPlayer.GetPlayerName())
 		case "2":
 			cpu := player.CreateCPUPlayer("optimal")
-			g.playerList = append(g.playerList)
+			g.playerList = append(g.playerList, cpu)
 			fmt.Println("Created new CPU newPlayer (optimal):", cpu.GetPlayerName())
 		case "3":
 			cpu := player.CreateCPUPlayer("gambler")
@@ -257,6 +257,7 @@ func (g *Game) mainLoop() {
 
 			if len(cards) == 0 {
 				fmt.Println("No valid cards selected.")
+				err = g.Transition(CheckWin)
 				continue
 			}
 
