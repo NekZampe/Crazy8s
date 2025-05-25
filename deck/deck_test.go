@@ -89,3 +89,23 @@ func TestPrintTopCard(t *testing.T) {
 	d.AddCardToActive(d.RemoveCardFromReserveDeck())
 	d.PrintTopCard()
 }
+
+func TestResetReservePile(t *testing.T) {
+	d := deck.GetInstance()
+
+	d.AddCardToActive(d.RemoveCardFromReserveDeck())
+	d.AddCardToActive(d.RemoveCardFromReserveDeck())
+	d.AddCardToActive(d.RemoveCardFromReserveDeck())
+	d.RefreshTopCard()
+
+	top := d.GetTopCard()
+
+	d.ResetReservePile()
+
+	if len(d.GetReservePile()) != 51 {
+		t.Errorf("Not all cards returned to reserve pile")
+	}
+	if top != d.GetTopCard() {
+		t.Errorf("TopCard changed unexpectedly")
+	}
+}

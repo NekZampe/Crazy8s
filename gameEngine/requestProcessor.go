@@ -18,6 +18,7 @@ type Request struct {
 // rTypes: play[p] , skip[s] , exit[e]
 // Cards: 1 4 7... [ max 4 card IDs ]
 
+// GetPlayerPlayInput shows the player it's their turn and their current hand, requests an input that is parsed in ParsePlayerRequest
 func (g *Game) GetPlayerPlayInput() string {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf("Your turn: ")

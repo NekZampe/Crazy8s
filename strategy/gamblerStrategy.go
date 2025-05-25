@@ -8,6 +8,10 @@ import (
 
 type GamblerStrategy struct{}
 
+func (s *GamblerStrategy) Name() string {
+	return "gambler"
+}
+
 func (s *GamblerStrategy) ChooseCards(hand []*card.Card, topCard *card.Card) string {
 	viableMap := GetViablePlays(hand, topCard)
 

@@ -6,8 +6,13 @@ import (
 
 type OptimalStrategy struct{}
 
+func (s *OptimalStrategy) Name() string {
+	return "optimal"
+}
+
 // ChooseCards finds all viable choices of playable cards of the cpu and selects the one with the most cards played, returns the play string ex: 'play 2 3 4'
 func (s *OptimalStrategy) ChooseCards(hand []*card.Card, topCard *card.Card) string {
+	//log.Printf("Top card: %s of %s | CPU hand: %v", topCard.GetValue(), topCard.GetSuit(), hand)
 	viableMap := GetViablePlays(hand, topCard)
 
 	// Skip turn if no viable plays

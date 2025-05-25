@@ -22,6 +22,9 @@ func GetViablePlays(hand []*card.Card, topCard *card.Card) map[int][]int {
 	viableMap := make(map[int][]int)
 
 	for i, c := range hand {
+		if c == nil {
+			continue // skip nil cards
+		}
 		if c.GetValue() == "8" || c.EqualValue(topCard) || c.EqualSuit(topCard) {
 			currentSet := []int{i} // Start new set with this card
 

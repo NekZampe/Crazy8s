@@ -26,6 +26,8 @@ func (d *Deck) GetTopCard() *card.Card {
 	return d.topCard
 }
 
+func (d *Deck) GetReservePileCount() int { return len(d.activePile) }
+
 var (
 	instance *Deck
 	once     sync.Once
@@ -101,4 +103,15 @@ func (d *Deck) ShuffleDeck() {
 
 func (d *Deck) PrintTopCard() {
 	fmt.Println("Top Card:", d.GetTopCard().PrintCard())
+}
+
+func (d *Deck) ResetReservePile() {
+	if len(d.activePile) > 1 {
+		// Append all but the top card from activePile to reservePile
+		d.reservePile = append(d.reservePile, d.activePile[:len(d.activePile)-1]...)
+		// Keep only the top card in activePile
+		d.activePile = d.activePile[len(d.activePile)-1:]
+		// Shuffle
+		d.ShuffleDeck()
+	}
 }

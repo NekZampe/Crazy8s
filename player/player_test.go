@@ -13,7 +13,7 @@ func TestCreatePlayer(t *testing.T) {
 		t.Errorf("Expected type 'human', got '%s'", p.GetType())
 	}
 	if p.GetDifficulty() != "" {
-		t.Errorf("Expected difficulty to be empty, got '%s'", p.GetDifficulty())
+		t.Errorf("Expected strategy to be empty, got '%s'", p.GetDifficulty())
 	}
 	if p.PHand == nil {
 		t.Error("Expected hand to be initialized")
@@ -27,7 +27,7 @@ func TestCreateCPUPlayer(t *testing.T) {
 		t.Errorf("Expected type 'cpu', got '%s'", cpu.GetType())
 	}
 	if cpu.GetDifficulty() != "optimal" {
-		t.Errorf("Expected difficulty 'optimal', got '%s'", cpu.GetDifficulty())
+		t.Errorf("Expected strategy 'optimal', got '%s'", cpu.GetDifficulty())
 	}
 	if cpu.PHand == nil {
 		t.Error("Expected hand to be initialized")

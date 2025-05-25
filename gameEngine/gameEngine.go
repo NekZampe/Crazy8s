@@ -3,6 +3,7 @@ package gameEngine
 import (
 	"Crazy8s/card"
 	"Crazy8s/deck"
+	"Crazy8s/ilogger"
 	"Crazy8s/player"
 	"bufio"
 	"fmt"
@@ -28,11 +29,13 @@ type Game struct {
 	countOf2s          int
 	countOfJacks       int
 	IsGameOver         bool
+	logger             ilogger.Logger
 }
 
-func NewGame() *Game {
+func NewGame(logger ilogger.Logger) *Game {
 	return &Game{
-		state: initial,
+		state:  initial,
+		logger: logger,
 	}
 }
 
@@ -56,6 +59,13 @@ func (g *Game) addPlayersLocal() {
 	}
 
 	for flag {
+
+		if len(g.playerList) >= 5 {
+			fmt.Println("Max players reached, starting game...")
+			flag = false
+			break
+		}
+
 		clearConsole()
 		fmt.Println("\nAdd Player:")
 		fmt.Println("1: New Human Player")
@@ -143,7 +153,6 @@ func (g *Game) PickUpCard(player *player.Player) {
 // PlayCards play up to 4 cards at once
 func (g *Game) PlayCards(player *player.Player, cards []*card.Card) error {
 
-	//fmt.Println("CARDS PASSED TO playCards:", cards)
 	//Pick up cards if twos were played
 	//TODO: Make into own function
 	if g.countOf2s > 1 {
@@ -181,7 +190,12 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) error {
 
 	switch firstValue {
 	case "8":
-		suit := g.GetPlayerC8Input()
+		var suit string
+		if player.GetType() == "human" {
+			suit = g.GetPlayerC8Input()
+		} else {
+			suit = player.Strategy.HandleCrazy8(player.PHand.GetCards())
+		}
 		g.gameDeck.GetTopCard().SetSuit(suit) //If we set suit of top card to player requested value we ensure only requested suit can be played on next turn
 		return nil
 	case "J":
@@ -231,24 +245,45 @@ func (g *Game) mainLoop() {
 
 	for !g.IsGameOver {
 
+		// ADD BREAKPOINT HERE <-------------------------------------
+
+		// On start of turn ensure enough cards in reserve pile
+		if g.gameDeck.GetReservePileCount() < 8 {
+			g.gameDeck.ResetReservePile()
+			g.logger.Info("RESHUFFLE RESERVE PILE")
+		}
+
 		p := g.playerList[g.currentPlayerIndex]
+
+		g.logger.Info("Current player " + p.GetPlayerName())
 
 		err := g.Transition(PlayerTurn)
 		if err != nil {
 			return
 		}
-		clearConsole()
-		g.gameDeck.PrintTopCard()
-		p.PHand.PrintHand()
-		var request Request
-		for {
-			input := g.GetPlayerPlayInput()
-			request = g.ParsePlayerRequest(input)
 
-			if request.rType != "" {
-				break
+		var request Request
+		g.logger.Info("TOP CARD: " + g.gameDeck.GetTopCard().PrintCard())
+
+		if p.GetType() == "human" {
+			for {
+				g.gameDeck.PrintTopCard()
+				p.PHand.PrintHand()
+
+				input := g.GetPlayerPlayInput()
+				request = g.ParsePlayerRequest(input)
+
+				g.logger.Debug("INPUT:	<" + input + "> ,received from: " + p.GetPlayerName())
+
+				if request.rType != "" {
+					break
+				}
+				fmt.Println("Please enter a valid command.")
 			}
-			fmt.Println("Please enter a valid command.")
+		} else {
+			input := p.Strategy.ChooseCards(p.PHand.GetCards(), g.gameDeck.GetTopCard())
+			request = g.ParsePlayerRequest(input)
+			g.logger.Debug("INPUT: " + input + " ,received from: " + p.GetPlayerName())
 		}
 
 		switch request.rType {

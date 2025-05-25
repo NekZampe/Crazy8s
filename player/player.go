@@ -3,6 +3,7 @@ package player
 import (
 	"Crazy8s/card"
 	"Crazy8s/hand"
+	"Crazy8s/strategy"
 	"fmt"
 	"math/rand"
 	"time"
@@ -19,8 +20,8 @@ type Player struct {
 	name       string
 	id         int
 	PHand      *hand.Hand
-	playerType string // "human" or "cpu"
-	difficulty string // empty for humans, or "optimal"/"gambler" for CPUs
+	playerType string                // "human" or "cpu"
+	Strategy   strategy.PlayStrategy // empty for humans, or "optimal"/"gambler" for CPUs
 }
 
 // Getter methods
@@ -36,8 +37,11 @@ func (p *Player) GetType() string {
 	return p.playerType
 }
 
-func (p *Player) GetDifficulty() string {
-	return p.difficulty
+func (p *Player) GetStrategy() string {
+	if p.Strategy == nil {
+		return "human"
+	}
+	return p.Strategy.Name()
 }
 
 // Setter methods
@@ -59,21 +63,31 @@ func CreatePlayer() *Player {
 		id:         generateUniqueID(),
 		PHand:      &hand.Hand{},
 		playerType: "human",
-		difficulty: "",
+		Strategy:   nil,
 	}
 }
 
-// CreateCPUPlayer creates a CPU player with specified difficulty ("optimal" or "gambler")
-func CreateCPUPlayer(difficulty string) *Player {
+// CreateCPUPlayer creates a CPU player with the specified strategy ("optimal" or "gambler")
+func CreateCPUPlayer(strategyName string) *Player {
 	totalCPUs++
 	name := fmt.Sprintf("CPU %d", totalCPUs)
+
+	var strat strategy.PlayStrategy
+	switch strategyName {
+	case "optimal":
+		strat = &strategy.OptimalStrategy{}
+	case "gambler":
+		strat = &strategy.GamblerStrategy{}
+	default:
+		strat = nil
+	}
 
 	return &Player{
 		name:       name,
 		id:         generateUniqueID(),
 		PHand:      &hand.Hand{},
 		playerType: "cpu",
-		difficulty: difficulty,
+		Strategy:   strat,
 	}
 }
 

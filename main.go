@@ -1,8 +1,12 @@
 package main
 
-import "Crazy8s/gameEngine"
+import (
+	"Crazy8s/gameEngine"
+	"Crazy8s/ilogger"
+)
 
 func main() {
-	game := gameEngine.NewGame()
+	log, _ := ilogger.NewFileLogger("game.log")
+	game := gameEngine.NewGame(log)
 	game.Play()
 }
