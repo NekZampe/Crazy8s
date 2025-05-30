@@ -330,9 +330,7 @@ func (g *Game) mainLoop() {
 
 		case "s":
 			g.skipCounter++
-			fmt.Println("SKIPPED... ")
 			g.PickUpCard(p)
-
 			err := g.Transition(CheckWin)
 			if err != nil {
 				return
