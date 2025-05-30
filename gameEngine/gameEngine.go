@@ -256,6 +256,7 @@ func (g *Game) mainLoop() {
 			g.logger.Info("RESHUFFLE RESERVE PILE")
 		}
 
+		// TODO Remove skip counter
 		// END GAME IF TOO MANY SKIPS
 		if g.skipCounter > 10 {
 			fmt.Println("--------- ENDING GAME EARLY, TOO MANY SKIPS ---------")

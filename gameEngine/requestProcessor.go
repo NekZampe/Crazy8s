@@ -52,7 +52,7 @@ func (g *Game) ParsePlayerRequest(input string) Request {
 				break
 			}
 		}
-		fmt.Printf("%v\n", r.cards)
+		//fmt.Printf("%v\n", r.cards)
 		return r
 	case "skip", "s":
 		r.rType = "s"

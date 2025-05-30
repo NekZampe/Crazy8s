@@ -2,7 +2,6 @@ package strategy
 
 import (
 	"Crazy8s/card"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -41,18 +40,6 @@ func GetViablePlays(hand []*card.Card, topCard *card.Card) map[int][]int {
 			viableMap[i] = setCopy
 		}
 	}
-	//Temp printout for troubleshooting
-	fmt.Println("----------------------------------------------------")
-	fmt.Println("VIABLE PLAYS: ")
-	for key, value := range viableMap {
-		fmt.Printf("Key: %d\n", key)
-		fmt.Printf("Values: ")
-		for _, num := range value {
-			fmt.Printf("%d ", num)
-		}
-		fmt.Println()
-	}
-	fmt.Println("----------------------------------------------------")
 
 	return viableMap
 }
