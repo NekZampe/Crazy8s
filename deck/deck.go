@@ -29,7 +29,7 @@ func (d *Deck) GetTopCard() *card.Card {
 	return pile[len(pile)-1]
 }
 
-func (d *Deck) GetReservePileCount() int { return len(d.activePile) }
+func (d *Deck) GetReservePileCount() int { return len(d.reservePile) }
 
 var (
 	instance *Deck
@@ -99,6 +99,10 @@ func (d *Deck) ShuffleDeck() {
 
 func (d *Deck) PrintTopCard() {
 	fmt.Println("Top Card:", d.GetTopCard().PrintCard())
+}
+
+func (d *Deck) PrintTopCardUI() {
+	fmt.Println("Top Card:\n", d.GetTopCard().BuildCardAscii())
 }
 
 func (d *Deck) ResetReservePile() {

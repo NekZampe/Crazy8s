@@ -222,6 +222,7 @@ func (g *Game) CheckWinner() {
 	if g.playerList[g.currentPlayerIndex].PHand.GetCount() == 0 {
 		fmt.Printf("END OF GAME, Player %s won!", g.playerList[g.currentPlayerIndex].GetPlayerName())
 		g.IsGameOver = true
+		g.logger.Debug("END OF GAME, Player " + g.playerList[g.currentPlayerIndex].GetPlayerName() + " won!")
 		os.Exit(1)
 	}
 }
@@ -277,8 +278,9 @@ func (g *Game) mainLoop() {
 
 		if p.GetType() == "human" {
 			for {
-				g.gameDeck.PrintTopCard()
-				p.PHand.PrintHand()
+				g.gameDeck.PrintTopCardUI()
+				fmt.Println("     ------------------------ YOUR HAND ------------------------")
+				p.PHand.PrintHandUI()
 
 				input := g.GetPlayerPlayInput()
 				request = g.ParsePlayerRequest(input)
