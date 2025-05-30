@@ -11,7 +11,6 @@ import (
 type Deck struct {
 	activePile  []*card.Card
 	reservePile []*card.Card
-	topCard     *card.Card
 }
 
 func (d *Deck) GetActivePile() []*card.Card {
@@ -23,7 +22,11 @@ func (d *Deck) GetReservePile() []*card.Card {
 }
 
 func (d *Deck) GetTopCard() *card.Card {
-	return d.topCard
+	pile := d.GetActivePile()
+	if len(pile) == 0 {
+		return nil
+	}
+	return pile[len(pile)-1]
 }
 
 func (d *Deck) GetReservePileCount() int { return len(d.activePile) }
@@ -45,16 +48,9 @@ func GetInstance() *Deck {
 	return instance
 }
 
-func (d *Deck) RefreshTopCard() {
-	if len(d.activePile) > 0 {
-		d.topCard = d.activePile[len(d.activePile)-1]
-	}
-}
-
 // AddCardToActive adds a card to active
 func (d *Deck) AddCardToActive(c *card.Card) {
 	d.activePile = append(d.activePile, c)
-	d.RefreshTopCard()
 }
 
 // AddCardToReserve adds card to reserve pile
@@ -77,7 +73,7 @@ func (d *Deck) RemoveCardFromReserveDeck() *card.Card {
 // InitializeDeck : Creates and shuffles deck
 func (d *Deck) initializeDeck() {
 	index := 0
-	suits := []string{"Hearts", "Diamonds", "Clubs", "Spades"}
+	suits := []string{"hearts", "diamonds", "clubs", "spades"}
 	values := []string{
 		"A", "2", "3", "4", "5", "6", "7",
 		"8", "9", "10", "J", "Q", "K",

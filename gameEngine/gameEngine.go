@@ -29,6 +29,7 @@ type Game struct {
 	countOf2s          int
 	countOfJacks       int
 	IsGameOver         bool
+	skipCounter        int
 	logger             ilogger.Logger
 }
 
@@ -126,7 +127,6 @@ func (g *Game) ShufflePlayers() {
 
 func (g *Game) setTopCard() {
 	g.gameDeck.AddCardToActive(g.gameDeck.RemoveCardFromReserveDeck())
-	g.gameDeck.RefreshTopCard()
 }
 
 func (g *Game) initializeGame() {
@@ -145,9 +145,13 @@ func (g *Game) initializeGame() {
 
 }
 
-// PickUpCard : Player takes top card from reserve deck (played on start of turn )
+// PickUpCard : Player takes top card from reserve deck (played when turn is skipped)
 func (g *Game) PickUpCard(player *player.Player) {
-	player.PHand.AddCard(g.gameDeck.RemoveCardFromReserveDeck())
+	if g.gameDeck.GetReservePileCount() > 0 {
+		c := g.gameDeck.RemoveCardFromReserveDeck()
+		player.PHand.AddCard(c)
+		g.logger.Info("Player: " + player.GetPlayerName() + " picked up: " + c.PrintCard())
+	}
 }
 
 // PlayCards play up to 4 cards at once
@@ -186,7 +190,6 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) error {
 	for _, c := range cards {
 		g.gameDeck.AddCardToActive(player.PHand.RemoveCardFromHand(c))
 	}
-	g.gameDeck.RefreshTopCard()
 
 	switch firstValue {
 	case "8":
@@ -196,7 +199,7 @@ func (g *Game) PlayCards(player *player.Player, cards []*card.Card) error {
 		} else {
 			suit = player.Strategy.HandleCrazy8(player.PHand.GetCards())
 		}
-		g.gameDeck.GetTopCard().SetSuit(suit) //If we set suit of top card to player requested value we ensure only requested suit can be played on next turn
+		g.gameDeck.GetActivePile()[len(g.gameDeck.GetActivePile())-1].SetSuit(suit) //If we set suit of top card to player requested value we ensure only requested suit can be played on next turn
 		return nil
 	case "J":
 		g.countOfJacks = len(cards)
@@ -253,6 +256,12 @@ func (g *Game) mainLoop() {
 			g.logger.Info("RESHUFFLE RESERVE PILE")
 		}
 
+		// END GAME IF TOO MANY SKIPS
+		if g.skipCounter > 10 {
+			fmt.Println("--------- ENDING GAME EARLY, TOO MANY SKIPS ---------")
+			os.Exit(1)
+		}
+
 		p := g.playerList[g.currentPlayerIndex]
 
 		g.logger.Info("Current player " + p.GetPlayerName())
@@ -273,7 +282,7 @@ func (g *Game) mainLoop() {
 				input := g.GetPlayerPlayInput()
 				request = g.ParsePlayerRequest(input)
 
-				g.logger.Debug("INPUT:	<" + input + "> ,received from: " + p.GetPlayerName())
+				g.logger.Debug("INPUT: " + input + " ,received from: " + p.GetPlayerName())
 
 				if request.rType != "" {
 					break
@@ -288,6 +297,8 @@ func (g *Game) mainLoop() {
 
 		switch request.rType {
 		case "p":
+			//reset skip counter
+			g.skipCounter = 0
 			cards := p.GetCardsByIndexes(request.cards)
 
 			if len(cards) == 0 {
@@ -317,7 +328,10 @@ func (g *Game) mainLoop() {
 			g.NextPlayer()
 
 		case "s":
+			g.skipCounter++
+			fmt.Println("SKIPPED... ")
 			g.PickUpCard(p)
+
 			err := g.Transition(CheckWin)
 			if err != nil {
 				return
