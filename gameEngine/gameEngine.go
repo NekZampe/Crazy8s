@@ -29,13 +29,12 @@ type Game struct {
 	countOf2s          int
 	countOfJacks       int
 	IsGameOver         bool
-	skipCounter        int
 	logger             ilogger.Logger
 }
 
 func NewGame(logger ilogger.Logger) *Game {
 	return &Game{
-		state:  initial,
+		state:  StartMenu,
 		logger: logger,
 	}
 }
@@ -53,7 +52,7 @@ func (g *Game) addPlayersLocal() {
 	reader := bufio.NewReader(os.Stdin)
 	flag := true
 
-	err := g.Transition(AddPlayers)
+	err := g.Transition(OfflinePlay)
 	if err != nil {
 		fmt.Println("State transition error:", err)
 		return
@@ -257,13 +256,6 @@ func (g *Game) mainLoop() {
 			g.logger.Info("RESHUFFLE RESERVE PILE")
 		}
 
-		// TODO Remove skip counter
-		// END GAME IF TOO MANY SKIPS
-		if g.skipCounter > 10 {
-			fmt.Println("--------- ENDING GAME EARLY, TOO MANY SKIPS ---------")
-			os.Exit(1)
-		}
-
 		p := g.playerList[g.currentPlayerIndex]
 
 		g.logger.Info("Current player " + p.GetPlayerName())
@@ -300,8 +292,6 @@ func (g *Game) mainLoop() {
 
 		switch request.rType {
 		case "p":
-			//reset skip counter
-			g.skipCounter = 0
 			cards := p.GetCardsByIndexes(request.cards)
 
 			if len(cards) == 0 {
@@ -331,7 +321,6 @@ func (g *Game) mainLoop() {
 			g.NextPlayer()
 
 		case "s":
-			g.skipCounter++
 			g.PickUpCard(p)
 			err := g.Transition(CheckWin)
 			if err != nil {
