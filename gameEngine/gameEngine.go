@@ -52,7 +52,7 @@ func (g *Game) addPlayersLocal() {
 	reader := bufio.NewReader(os.Stdin)
 	flag := true
 
-	err := g.Transition(OfflinePlay)
+	err := g.Transition(AddPlayers)
 	if err != nil {
 		fmt.Println("State transition error:", err)
 		return
@@ -242,7 +242,7 @@ func (g *Game) IsValidPlay(player *player.Player, cards []int) bool {
 
 func (g *Game) mainLoop() {
 
-	//Players join
+	//AddPlayers join
 	//Cards shuffled and distributed
 	//Each player plays until one player is first to have no cards and is declared the winner
 

@@ -37,3 +37,12 @@ func (c *Card) GetSuitSymbol() string {
 		return "?"
 	}
 }
+
+func BuildCardBackAscii() string {
+	return ` _______
+| \ ~ / |
+| }}:{{ |
+| }}:{{ |
+| }}:{{ |
+| /_~_\ |`
+}

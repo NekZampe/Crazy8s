@@ -5,24 +5,24 @@ import "fmt"
 type GameState string
 
 const (
-	StartMenu   GameState = "StartMenu"
-	OfflinePlay           = "OfflinePlay"
-	Start                 = "Start"
-	Deal                  = "DealCards"
-	PlayerTurn            = "PlayerTurn"
-	CheckWin              = "CheckWin"
-	End                   = "EndGame"
+	StartMenu  GameState = "StartMenu"
+	AddPlayers           = "AddPlayers"
+	Start                = "Start"
+	Deal                 = "DealCards"
+	PlayerTurn           = "PlayerTurn"
+	CheckWin             = "CheckWin"
+	End                  = "EndGame"
 )
 
 func (g *Game) Transition(newState GameState) error {
 	validTransitions := map[GameState][]GameState{
-		StartMenu:   {OfflinePlay},
-		OfflinePlay: {Start},
-		Start:       {Deal},
-		Deal:        {PlayerTurn},
-		PlayerTurn:  {CheckWin},
-		CheckWin:    {End, PlayerTurn},
-		End:         {},
+		StartMenu:  {AddPlayers},
+		AddPlayers: {Start},
+		Start:      {Deal},
+		Deal:       {PlayerTurn},
+		PlayerTurn: {CheckWin},
+		CheckWin:   {End, PlayerTurn},
+		End:        {Start},
 	}
 
 	valid := false

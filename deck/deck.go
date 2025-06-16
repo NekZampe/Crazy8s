@@ -4,6 +4,7 @@ import (
 	"Crazy8s/card"
 	"fmt"
 	"math/rand"
+	"strings"
 	"sync"
 	"time"
 )
@@ -102,7 +103,18 @@ func (d *Deck) PrintTopCard() {
 }
 
 func (d *Deck) PrintTopCardUI() {
-	fmt.Println("Top Card:\n", d.GetTopCard().BuildCardAscii())
+	topCard := d.GetTopCard()
+	frontLines := strings.Split(topCard.BuildCardAscii(), "\n")
+	backLines := strings.Split(card.BuildCardBackAscii(), "\n")
+
+	indent := "                        " // 10 spaces
+
+	fmt.Println(indent + "Top Card:")
+
+	for i := 0; i < len(frontLines); i++ {
+		fmt.Printf("%s%s   %s\n", indent, frontLines[i], backLines[i])
+	}
+	fmt.Println()
 }
 
 func (d *Deck) ResetReservePile() {

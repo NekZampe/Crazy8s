@@ -1,6 +1,8 @@
-package gameEngine
+package start
 
 import (
+	"Crazy8s/gameEngine"
+	"Crazy8s/ilogger"
 	"bufio"
 	"fmt"
 	"os"
@@ -8,7 +10,7 @@ import (
 )
 
 // StartMenu : The start menu
-func (g *Game) StartMenu() {
+func StartMenu() {
 
 	printLogo()
 
@@ -24,16 +26,19 @@ func (g *Game) StartMenu() {
 		input = strings.TrimSpace(strings.ToLower(input))
 
 		switch input {
-
 		case "1":
-
+			StartOfflineGame()
 		case "2":
+			handleMultiplayerMenu()
 
 		case "3":
+			fmt.Println("Exiting Crazy 8's. Goodbye!")
+			flag = false
 
 		default:
 			fmt.Println("Invalid input. Please try again.")
 		}
+
 	}
 
 }
@@ -55,4 +60,14 @@ func printLogo() {
 ╚██████╗██║  ██║██║  ██║███████╗   ██║   ╚█████╔╝███████║
  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝    ╚════╝ ╚══════╝ By Nektarios Z
 `)
+}
+
+func StartOfflineGame() {
+	log, _ := ilogger.NewFileLogger("game.log")
+	game := gameEngine.NewGame(log)
+	game.Play()
+}
+
+func handleMultiplayerMenu() {
+
 }
