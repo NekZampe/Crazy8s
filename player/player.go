@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	usedIDs      = make(map[int]bool)
+	usedIDs      = make(map[byte]bool)
 	rng          = rand.New(rand.NewSource(time.Now().UnixNano()))
 	totalPlayers = 0
 	totalCPUs    = 0
@@ -18,18 +18,18 @@ var (
 
 type Player struct {
 	name       string
-	id         int
+	id         byte
 	PHand      *hand.Hand
 	playerType string                // "human" or "cpu"
 	Strategy   strategy.PlayStrategy // empty for humans, or "optimal"/"gambler" for CPUs
 }
 
-// Getter methods
+// GetPlayerName Getter methods
 func (p *Player) GetPlayerName() string {
 	return p.name
 }
 
-func (p *Player) GetPlayerId() int {
+func (p *Player) GetPlayerId() byte {
 	return p.id
 }
 
@@ -44,12 +44,12 @@ func (p *Player) GetStrategy() string {
 	return p.Strategy.Name()
 }
 
-// Setter methods
+// SetPlayerName Setter methods
 func (p *Player) SetPlayerName(name string) {
 	p.name = name
 }
 
-func (p *Player) SetPlayerId(id int) {
+func (p *Player) SetPlayerId(id byte) {
 	p.id = id
 }
 
@@ -91,10 +91,10 @@ func CreateCPUPlayer(strategyName string) *Player {
 	}
 }
 
-// generateUniqueID returns a unique 5-digit ID
-func generateUniqueID() int {
+// generateUniqueID returns a unique ID between 1 and 255
+func generateUniqueID() byte {
 	for {
-		id := rng.Intn(90000) + 10000 // range: 10000–99999
+		id := byte(rng.Intn(255) + 1) // range: 1–255 (or 0–255 if you prefer)
 		if !usedIDs[id] {
 			usedIDs[id] = true
 			return id

@@ -8,8 +8,8 @@ const (
 	MsgSkip   byte = 0x05
 )
 
-func BuildJoin(playerID byte) []byte {
-	return buildPacket(MsgJoin, playerID, "")
+func BuildJoin() []byte {
+	return buildPacket(MsgJoin, 0xFF, "")
 }
 
 func BuildLeave(playerID byte) []byte {

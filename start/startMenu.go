@@ -20,7 +20,7 @@ func StartMenu() {
 
 	for flag {
 
-		printMenu()
+		printMainMenu()
 
 		input, _ := reader.ReadString('\n')
 		input = strings.TrimSpace(strings.ToLower(input))
@@ -30,7 +30,6 @@ func StartMenu() {
 			StartOfflineGame()
 		case "2":
 			handleMultiplayerMenu()
-
 		case "3":
 			fmt.Println("Exiting Crazy 8's. Goodbye!")
 			flag = false
@@ -43,11 +42,18 @@ func StartMenu() {
 
 }
 
-func printMenu() {
+func printMainMenu() {
 	fmt.Println("\nSelect Game Type:")
 	fmt.Println("1: Offline Mode")
 	fmt.Println("2: LAN Multiplayer")
 	fmt.Println("3: Exit")
+}
+
+func printLanMenu() {
+	fmt.Println("\nLAN Multiplayer Options:")
+	fmt.Println("1: Join game")
+	fmt.Println("2: Host game")
+	fmt.Println("3: Return to main menu")
 }
 
 func printLogo() {
@@ -58,8 +64,7 @@ func printLogo() {
 ██║     ██████╔╝███████║  ███╔╝  ╚████╔╝ ╚█████╔╝███████╗
 ██║     ██╔══██╗██╔══██║ ███╔╝    ╚██╔╝  ██╔══██╗╚════██║
 ╚██████╗██║  ██║██║  ██║███████╗   ██║   ╚█████╔╝███████║
- ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝    ╚════╝ ╚══════╝ By Nektarios Z
-`)
+ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝    ╚════╝ ╚══════╝ By Nektarios Z`)
 }
 
 func StartOfflineGame() {
@@ -69,5 +74,29 @@ func StartOfflineGame() {
 }
 
 func handleMultiplayerMenu() {
+	reader := bufio.NewReader(os.Stdin)
+	flag := true
+
+	for flag {
+
+		printLanMenu()
+
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(strings.ToLower(input))
+
+		switch input {
+		case "1":
+			//SearchForLobby()
+		case "2":
+			//HostGame()
+		case "3":
+			fmt.Println("Returning to main menu...")
+			flag = false
+			return
+		default:
+			fmt.Println("Invalid input. Please try again.")
+		}
+
+	}
 
 }
