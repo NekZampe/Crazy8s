@@ -96,7 +96,6 @@ func TestResetReservePile(t *testing.T) {
 	d.AddCardToActive(d.RemoveCardFromReserveDeck())
 	d.AddCardToActive(d.RemoveCardFromReserveDeck())
 	d.AddCardToActive(d.RemoveCardFromReserveDeck())
-	d.RefreshTopCard()
 
 	top := d.GetTopCard()
 
